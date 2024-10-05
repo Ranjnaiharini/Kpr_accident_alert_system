@@ -1,0 +1,52 @@
+# Step 1: Import Libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from google.colab import drive
+
+# Step 2: Mount Google Drive
+drive.mount('/content/drive')
+
+# Step 3: Load Datasets
+# Replace 'large_dummy_sensor_data.csv' and 'trained_data.csv' with your actual filenames
+dummy_data_path = '/content/drive/My Drive/large_dummy_sensor_data.csv'  # Path to the dummy dataset
+trained_data_path = '/content/drive/My Drive/trained_data.csv'  # Path to the trained dataset
+
+dummy_df = pd.read_csv(dummy_data_path)
+trained_df = pd.read_csv(trained_data_path)
+
+# Step 4: Preprocess the Data
+# Ensure that both datasets have the same feature columns
+# You may need to drop irrelevant columns or handle missing values
+
+# Example: Drop irrelevant columns (adjust based on your datasets)
+# dummy_df = dummy_df.drop(columns=['UnnecessaryColumn'])
+# trained_df = trained_df.drop(columns=['UnnecessaryColumn'])
+
+# Step 5: Combine Datasets
+combined_df = pd.concat([dummy_df, trained_df], ignore_index=True)
+
+# Step 6: Prepare Features and Target
+X = combined_df.drop('Impact Force Classification', axis=1)  # Assuming 'Impact Force Classification' is your target variable
+y = combined_df['Impact Force Classification']
+
+# Step 7: Split the Dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 8: Scale the Data (important for KNN)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Step 9: Define and Train KNN Model
+knn = KNeighborsClassifier(n_neighbors=5)  
+knn.fit(X_train_scaled, y_train)
+
+# Step 10: Make Predictions on the Test Set
+y_pred = knn.predict(X_test_scaled)
+
+# Step 11: Evaluate the Model
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
